@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: bookapi-mssql
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Your_Password123"
+    ports:
+      - "1433:1433"     
+    volumes:
+      - mssqldata:/var/opt/mssql  
+    healthcheck:           
+      test: [ "CMD", "bash", "-c", "echo 'SELECT 1' | /opt/mssql-tools/bin/sqlcmd -U sa -P $${SA_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: bookapi-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"      
+    volumes:
+      - redisdata:/data  
+    healthcheck:       
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mssqldata:
+  redisdata:
